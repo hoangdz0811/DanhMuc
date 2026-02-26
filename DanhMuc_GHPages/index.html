@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Mục Đầu Tư - KAFI SAIGON</title>
+    <meta name="description" content="Báo cáo danh mục đầu tư cổ phiếu hàng ngày - KAFI SAIGON">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shimmer {
+            0%   { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(100%); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateX(0); }
+            to   { opacity: 0; transform: translateX(100%); }
+        }
+
+        /* ===== BODY ===== */
+        body {
+            background: #f5f7f5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #37474F;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 24px 40px;
+        }
+
+        /* ===== TOP BAR ===== */
+        .top-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 8px;
+            animation: fadeInUp 0.4s ease-out;
+            flex-wrap: wrap;
+        }
+        .top-bar .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #00897B 0%, #26A69A 100%);
+            color: white;
+            box-shadow: 0 3px 12px rgba(0,137,123,0.25);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0,137,123,0.35);
+        }
+        .btn-secondary {
+            background: white;
+            color: #00897B;
+            border: 1px solid #e0e0e0 !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .btn-secondary:hover {
+            background: #e8f5e9;
+            transform: translateY(-1px);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #C62828 0%, #E53935 100%);
+            color: white;
+            box-shadow: 0 3px 12px rgba(198,40,40,0.2);
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(198,40,40,0.3);
+        }
+        .btn-warning {
+            background: linear-gradient(135deg, #E65100 0%, #FF6D00 100%);
+            color: white;
+            box-shadow: 0 3px 12px rgba(230,81,0,0.2);
+        }
+        .btn-warning:hover {
+            transform: translateY(-2px);
+        }
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            border-radius: 8px;
+        }
+
+        /* ===== HEADER ===== */
+        .main-header {
+            text-align: center;
+            padding: 24px 0 12px 0;
+            animation: fadeInUp 0.5s ease-out;
+            position: relative;
+        }
+        .main-header h1 {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00897B 0%, #26A69A 40%, #4DB6AC 70%, #00897B 100%);
+            background-size: 200% auto;
+            animation: shimmer 4s linear infinite;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1.5px;
+            margin: 0;
+        }
+        .main-header .sub {
+            color: #78909C;
+            font-size: 0.82rem;
+            font-weight: 500;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+        .main-header .divider {
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00897B, transparent);
+            margin: 12px auto 0;
+            border-radius: 2px;
+        }
+
+        /* ===== KPI CARDS ===== */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        @media (max-width: 768px) {
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .kpi-row { grid-template-columns: 1fr; }
+        }
+        .kpi-card {
+            background: linear-gradient(145deg, #00897B 0%, #00796B 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 22px 18px 18px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 16px rgba(0,137,123,0.25);
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+        }
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,137,123,0.35);
+        }
+        .kpi-card .kpi-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .kpi-card .kpi-icon { font-size: 1.1rem; line-height: 1; }
+        .kpi-card .label {
+            color: rgba(255,255,255,0.9);
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .kpi-card .value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .kpi-card .value.positive { color: #B9F6CA; }
+        .kpi-card .value.negative { color: #FF8A80; }
+        .kpi-card .value.neutral  { color: #ffffff; }
+
+        /* ===== GLASS CARD ===== */
+        .glass-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 0;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* ===== TABLE ===== */
+        .portfolio-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .portfolio-table thead th {
+            background: #00897B;
+            color: white;
+            font-weight: 700;
+            font-size: 0.73rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 14px 16px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .portfolio-table tbody td {
+            padding: 16px 16px;
+            color: #37474F;
+            font-size: 0.93rem;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+            font-weight: 500;
+        }
+        .portfolio-table tbody tr {
+            transition: background 0.2s;
+        }
+        .portfolio-table tbody tr:nth-child(even) {
+            background: #f9fdf9;
+        }
+        .portfolio-table tbody tr:hover {
+            background: #e8f5e9;
+        }
+        .portfolio-table .symbol {
+            font-weight: 800;
+            color: #00897B;
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
+        }
+        .profit-positive {
+            color: #2E7D32;
+            font-weight: 800;
+        }
+        .profit-negative {
+            color: #D32F2F;
+            font-weight: 800;
+        }
+
+        /* ===== ACTION BUTTONS IN TABLE ===== */
+        .action-cell {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* ===== STOCK INFO ROW ===== */
+        .stock-info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .stock-info-row:last-child { border-bottom: none; }
+        .stock-info-text .sym {
+            color: #00897B;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .stock-info-text .detail {
+            color: #78909C;
+            font-size: 0.85rem;
+            margin-left: 12px;
+        }
+
+        /* ===== INLINE FORM ===== */
+        .inline-form {
+            padding: 16px 20px;
+            background: #f9fdf9;
+            border: 1px solid #e0e0e0;
+            border-radius: 14px;
+            margin: 8px 16px 16px;
+            animation: slideIn 0.3s ease-out;
+        }
+        .inline-form .form-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            display: block;
+            color: #546E7A;
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #37474F;
+            background: white;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #00897B;
+            box-shadow: 0 0 8px rgba(0,137,123,0.15);
+        }
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* ===== MODAL OVERLAY ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeInUp 0.2s ease-out;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 28px 32px;
+            width: 90%;
+            max-width: 520px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease-out;
+        }
+        .modal-content h2 {
+            color: #00897B;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        /* ===== TOAST ===== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            background: white;
+            border-left: 4px solid #00897B;
+            border-radius: 10px;
+            padding: 14px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: #37474F;
+            animation: toastIn 0.3s ease-out;
+            min-width: 260px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toast.removing { animation: toastOut 0.3s ease-out forwards; }
+        .toast.success { border-left-color: #2E7D32; }
+        .toast.error { border-left-color: #C62828; }
+        .toast.warning { border-left-color: #E65100; }
+
+        /* ===== TIMESTAMP ===== */
+        .timestamp {
+            text-align: center;
+            color: #90A4AE;
+            font-size: 0.75rem;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        /* ===== SECTION TITLE ===== */
+        .section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #37474F;
+            margin: 28px 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: #90A4AE;
+            font-size: 1rem;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        .empty-state .emoji { font-size: 2.5rem; margin-bottom: 12px; }
+
+        /* ===== CHECKBOX LABEL ===== */
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+        }
+        .checkbox-row input[type="checkbox"] {
+            accent-color: #00897B;
+            width: 18px;
+            height: 18px;
+        }
+        .checkbox-row label {
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: #546E7A;
+            cursor: pointer;
+        }
+
+        /* ===== DATA MANAGEMENT BAR ===== */
+        .data-bar {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        /* ===== SEPARATOR ===== */
+        .separator {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #ccc, transparent);
+            margin: 20px 0;
+        }
+
+        /* ===== LOADING SPINNER ===== */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(0,137,123,0.2);
+            border-top-color: #00897B;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 6px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .container { padding: 12px 12px 30px; }
+            .main-header h1 { font-size: 1.4rem; }
+            .portfolio-table thead th { padding: 10px 8px; font-size: 0.65rem; }
+            .portfolio-table tbody td { padding: 10px 8px; font-size: 0.82rem; }
+            .modal-content { padding: 20px; }
+        }
+
+        /* Scrollable table wrapper */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- MODAL: ADD STOCK -->
+<div class="modal-overlay" id="addModal">
+    <div class="modal-content">
+        <h2>➕ Thêm cổ phiếu mới</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Mã CP</label>
+                <input type="text" id="addSymbol" placeholder="VD: FPT" style="text-transform:uppercase;">
+            </div>
+            <div class="form-group">
+                <label>Ngày mua lần 1</label>
+                <input type="date" id="addDate">
+            </div>
+            <div class="form-group">
+                <label>Giá vốn lần 1 (₫)</label>
+                <input type="number" id="addPrice" min="0" step="100" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>Tỷ trọng (%)</label>
+                <input type="number" id="addWeight" min="0" max="100" step="5" value="25">
+            </div>
+        </div>
+        <div class="checkbox-row">
+            <input type="checkbox" id="addBuyTwice" onchange="toggleBuy2()">
+            <label for="addBuyTwice">🔄 Mua 2 lần</label>
+        </div>
+        <div id="buy2Fields" style="display:none; margin-top: 8px;">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Ngày mua lần 2</label>
+                    <input type="date" id="addDate2">
+                </div>
+                <div class="form-group">
+                    <label>Giá vốn lần 2 (₫)</label>
+                    <input type="number" id="addPrice2" min="0" step="100" placeholder="0">
+                </div>
+            </div>
+        </div>
+        <div class="form-actions" style="margin-top: 16px;">
+            <button class="btn btn-primary" onclick="confirmAddStock()">✅ Thêm vào danh mục</button>
+            <button class="btn btn-secondary" onclick="closeModal('addModal')">↩️ Hủy</button>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <button class="btn btn-primary" onclick="openAddModal()">➕ Thêm cổ phiếu</button>
+        <button class="btn btn-primary" onclick="refreshPrices()" id="refreshBtn">🔄 Cập nhật giá</button>
+    </div>
+
+    <!-- HEADER -->
+    <div class="main-header">
+        <h1>BÁO CÁO DANH MỤC ĐẦU TƯ</h1>
+        <div class="sub">Cập nhật hàng ngày</div>
+        <div class="divider"></div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-row" id="kpiRow"></div>
+
+    <!-- PORTFOLIO TABLE -->
+    <div id="portfolioSection"></div>
+
+    <!-- ACTIONS PER STOCK -->
+    <div id="stockActions"></div>
+
+    <!-- CLOSED POSITIONS -->
+    <div id="closedSection"></div>
+
+    <!-- TIMESTAMP -->
+    <div class="timestamp" id="timestampBar"></div>
+
+    <!-- DATA MANAGEMENT -->
+    <div class="data-bar">
+        <button class="btn btn-secondary btn-sm" onclick="exportData()">📥 Export JSON</button>
+        <label class="btn btn-secondary btn-sm" style="cursor:pointer;">
+            📤 Import JSON
+            <input type="file" accept=".json" onchange="importData(event)" style="display:none;">
+        </label>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const PRICES_URL = 'prices.json';  // relative — same repo on GitHub Pages
+const LS_PORTFOLIO = 'kafi_portfolio';
+const LS_CLOSED = 'kafi_closed_positions';
+
+const DEFAULT_PORTFOLIO = [
+    { ngay_mua: "2026-02-03", ma_cp: "MWG", gia_von: 76000, ty_trong: 25 },
+    { ngay_mua: "2026-02-04", ma_cp: "ANV", gia_von: 26000, ty_trong: 25 },
+    { ngay_mua: "2026-02-05", ma_cp: "BMP", gia_von: 145000, ty_trong: 25 },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let pricesData = { prices: {}, industries: {}, updated_at: '' };
+let editingIdx = null;
+let sellingIdx = null;
+
+// ============================================================
+// DATA PERSISTENCE (localStorage)
+// ============================================================
+function loadPortfolio() {
+    const raw = localStorage.getItem(LS_PORTFOLIO);
+    if (raw) {
+        try { return JSON.parse(raw); } catch (e) {}
+    }
+    return JSON.parse(JSON.stringify(DEFAULT_PORTFOLIO));
+}
+
+function savePortfolio(data) {
+    localStorage.setItem(LS_PORTFOLIO, JSON.stringify(data));
+}
+
+function loadClosed() {
+    const raw = localStorage.getItem(LS_CLOSED);
+    if (raw) {
+        try { return JSON.parse(raw); } catch (e) {}
+    }
+    return [];
+}
+
+function saveClosed(data) {
+    localStorage.setItem(LS_CLOSED, JSON.stringify(data));
+}
+
+// ============================================================
+// TOAST NOTIFICATIONS
+// ============================================================
+function showToast(message, icon = '✅', type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span>${icon}</span> ${message}`;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// ============================================================
+// FETCH PRICES FROM prices.json
+// ============================================================
+async function fetchPrices() {
+    try {
+        const resp = await fetch(PRICES_URL + '?t=' + Date.now());
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        pricesData = await resp.json();
+        return true;
+    } catch (e) {
+        console.warn('Không tải được prices.json:', e);
+        return false;
+    }
+}
+
+function getMarketPrice(symbol) {
+    const p = pricesData.prices[symbol];
+    return p !== undefined ? p : null;
+}
+
+function getIndustry(symbol) {
+    return pricesData.industries[symbol] || '—';
+}
+
+// ============================================================
+// FORMAT HELPERS
+// ============================================================
+function fmtVND(n) {
+    return Math.round(n).toLocaleString('vi-VN').replace(/,/g, '.');
+}
+
+function fmtDate(isoStr) {
+    const [y, m, d] = isoStr.split('-');
+    return `${d}/${m}/${y}`;
+}
+
+function todayISO() {
+    const d = new Date();
+    return d.getFullYear() + '-' +
+        String(d.getMonth() + 1).padStart(2, '0') + '-' +
+        String(d.getDate()).padStart(2, '0');
+}
+
+function nowStr() {
+    const d = new Date();
+    return d.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+// ============================================================
+// CALCULATE ROWS
+// ============================================================
+function calcRows(portfolio) {
+    return portfolio.map((item, i) => {
+        const marketPrice = getMarketPrice(item.ma_cp);
+        let giaVonAvg = item.gia_von;
+        if (item.gia_von_2) {
+            giaVonAvg = (item.gia_von + item.gia_von_2) / 2;
+        }
+        let profitPct = null;
+        if (marketPrice !== null) {
+            profitPct = (marketPrice - giaVonAvg) / giaVonAvg * 100;
+        }
+        return {
+            stt: i + 1,
+            ngay_mua: item.ngay_mua,
+            ngay_mua_2: item.ngay_mua_2 || null,
+            ma_cp: item.ma_cp,
+            gia_von: item.gia_von,
+            gia_von_2: item.gia_von_2 || null,
+            gia_von_avg: giaVonAvg,
+            gia_tt: marketPrice,
+            profit_pct: profitPct,
+            ty_trong: item.ty_trong,
+            nganh: getIndustry(item.ma_cp),
+        };
+    });
+}
+
+// ============================================================
+// RENDER KPI CARDS
+// ============================================================
+function renderKPIs(rows, portfolio) {
+    let totalProfit = 0, totalWeight = 0;
+    for (const r of rows) {
+        if (r.profit_pct !== null) {
+            totalProfit += r.profit_pct * r.ty_trong;
+            totalWeight += r.ty_trong;
+        }
+    }
+    const portfolioReturn = totalWeight > 0 ? totalProfit / totalWeight : 0;
+    const profitCls = portfolioReturn >= 0 ? 'positive' : 'negative';
+    const profitSign = portfolioReturn >= 0 ? '+' : '';
+    const totalWeightSum = rows.reduce((s, r) => s + r.ty_trong, 0);
+    const now = new Date();
+    const dateStr = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+
+    document.getElementById('kpiRow').innerHTML = `
+        <div class="kpi-card">
+            <div class="kpi-title-row"><span class="kpi-icon">📈</span><div class="label">Tỷ suất sinh lời danh mục</div></div>
+            <div class="value ${profitCls}">${profitSign}${portfolioReturn.toFixed(2)}%</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title-row"><span class="kpi-icon">💼</span><div class="label">Số lượng cổ phiếu</div></div>
+            <div class="value neutral">${portfolio.length}</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title-row"><span class="kpi-icon">⚖️</span><div class="label">Tổng tỷ trọng</div></div>
+            <div class="value neutral">${totalWeightSum}%</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title-row"><span class="kpi-icon">📅</span><div class="label">Ngày cập nhật</div></div>
+            <div class="value neutral" style="font-size:1.15rem;">${dateStr}</div>
+        </div>
+    `;
+}
+
+// ============================================================
+// RENDER PORTFOLIO TABLE
+// ============================================================
+function renderTable(rows) {
+    if (rows.length === 0) {
+        document.getElementById('portfolioSection').innerHTML = `
+            <div class="empty-state">
+                <div class="emoji">📭</div>
+                <p>Danh mục trống. Nhấn <b>➕ Thêm cổ phiếu</b> để bắt đầu.</p>
+            </div>`;
+        document.getElementById('stockActions').innerHTML = '';
+        return;
+    }
+
+    let tbody = '';
+    for (const r of rows) {
+        let ngayDisplay = fmtDate(r.ngay_mua);
+        if (r.ngay_mua_2) ngayDisplay += '<br>' + fmtDate(r.ngay_mua_2);
+
+        const giaVonFmt = fmtVND(r.gia_von_avg);
+        const giaTTFmt = r.gia_tt !== null ? fmtVND(r.gia_tt) : '—';
+
+        let profitDisplay;
+        if (r.profit_pct !== null) {
+            const pCls = r.profit_pct >= 0 ? 'profit-positive' : 'profit-negative';
+            const pSign = r.profit_pct >= 0 ? '+' : '';
+            const pIcon = r.profit_pct >= 0 ? '▲' : '▼';
+            profitDisplay = `<span class="${pCls}">${pIcon} ${pSign}${r.profit_pct.toFixed(2)}%</span>`;
+        } else {
+            profitDisplay = '<span style="color:#6b7280;">N/A</span>';
+        }
+
+        tbody += `<tr>
+            <td>${r.stt}</td>
+            <td>${ngayDisplay}</td>
+            <td class="symbol">${r.ma_cp}</td>
+            <td>${giaVonFmt}</td>
+            <td>${giaTTFmt}</td>
+            <td>${profitDisplay}</td>
+            <td>${r.ty_trong}%</td>
+            <td>${r.nganh}</td>
+            <td>
+                <div class="action-cell">
+                    <button class="btn btn-secondary btn-sm" onclick="showEditForm(${r.stt - 1})">✏️</button>
+                    <button class="btn btn-warning btn-sm" onclick="showSellForm(${r.stt - 1})">💰</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteStock(${r.stt - 1})">🗑️</button>
+                </div>
+            </td>
+        </tr>`;
+    }
+
+    document.getElementById('portfolioSection').innerHTML = `
+        <div class="glass-card">
+            <div class="table-wrapper">
+                <table class="portfolio-table">
+                    <thead><tr>
+                        <th>STT</th><th>Ngày mua</th><th>Mã CP</th>
+                        <th>Giá vốn</th><th>Giá thị trường</th><th>% Lợi nhuận</th>
+                        <th>Tỷ trọng</th><th>Ngành</th><th>Thao tác</th>
+                    </tr></thead>
+                    <tbody>${tbody}</tbody>
+                </table>
+            </div>
+        </div>`;
+
+    // Render inline forms
+    renderInlineForms();
+}
+
+// ============================================================
+// INLINE EDIT / SELL FORMS
+// ============================================================
+function renderInlineForms() {
+    const portfolio = loadPortfolio();
+    let html = '';
+
+    for (let i = 0; i < portfolio.length; i++) {
+        const item = portfolio[i];
+
+        // Edit form
+        if (editingIdx === i) {
+            const hasBuy2 = !!item.ngay_mua_2;
+            html += `
+            <div class="inline-form">
+                <div class="form-title" style="color:#00897B;">Chỉnh sửa ${item.ma_cp}</div>
+                <div style="font-weight:600; font-size:0.85rem; margin-bottom:8px;">Lần mua 1</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Ngày mua 1</label>
+                        <input type="date" id="editDate_${i}" value="${item.ngay_mua}">
+                    </div>
+                    <div class="form-group">
+                        <label>Giá vốn 1 (₫)</label>
+                        <input type="number" id="editPrice_${i}" min="0" step="100" value="${item.gia_von}">
+                    </div>
+                    <div class="form-group">
+                        <label>Tỷ trọng (%)</label>
+                        <input type="number" id="editWeight_${i}" min="0" max="100" step="5" value="${item.ty_trong}">
+                    </div>
+                </div>
+                <div style="font-weight:600; font-size:0.85rem; margin:8px 0;">Lần mua 2 <span style="font-weight:400; color:#90A4AE;">(tuỳ chọn)</span></div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Ngày mua 2</label>
+                        <input type="date" id="editDate2_${i}" value="${item.ngay_mua_2 || todayISO()}">
+                    </div>
+                    <div class="form-group">
+                        <label>Giá vốn 2 (₫)</label>
+                        <input type="number" id="editPrice2_${i}" min="0" step="100" value="${item.gia_von_2 || 0}">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary btn-sm" onclick="saveEdit(${i})">💾 Lưu</button>
+                    <button class="btn btn-secondary btn-sm" onclick="cancelEditSell()">↩️ Hủy</button>
+                    ${hasBuy2 ? `<button class="btn btn-danger btn-sm" onclick="deleteBuy2(${i})">🗑️ Xóa lần mua 2</button>` : ''}
+                </div>
+            </div>`;
+        }
+
+        // Sell form
+        if (sellingIdx === i) {
+            html += `
+            <div class="inline-form">
+                <div class="form-title" style="color:#FF6F00;">💰 Bán ${item.ma_cp}</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Ngày bán</label>
+                        <input type="date" id="sellDate_${i}" value="${todayISO()}">
+                    </div>
+                    <div class="form-group">
+                        <label>Giá bán (₫)</label>
+                        <input type="number" id="sellPrice_${i}" min="0" step="100" value="0">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-warning btn-sm" onclick="confirmSell(${i})">✅ Xác nhận bán</button>
+                    <button class="btn btn-secondary btn-sm" onclick="cancelEditSell()">↩️ Hủy</button>
+                </div>
+            </div>`;
+        }
+    }
+
+    document.getElementById('stockActions').innerHTML = html;
+}
+
+function showEditForm(idx) {
+    editingIdx = idx;
+    sellingIdx = null;
+    renderAll();
+}
+
+function showSellForm(idx) {
+    sellingIdx = idx;
+    editingIdx = null;
+    renderAll();
+}
+
+function cancelEditSell() {
+    editingIdx = null;
+    sellingIdx = null;
+    renderAll();
+}
+
+function saveEdit(idx) {
+    const portfolio = loadPortfolio();
+    portfolio[idx].ngay_mua = document.getElementById(`editDate_${idx}`).value;
+    portfolio[idx].gia_von = parseInt(document.getElementById(`editPrice_${idx}`).value) || 0;
+    portfolio[idx].ty_trong = parseInt(document.getElementById(`editWeight_${idx}`).value) || 0;
+
+    const price2 = parseInt(document.getElementById(`editPrice2_${idx}`).value) || 0;
+    if (price2 > 0) {
+        portfolio[idx].ngay_mua_2 = document.getElementById(`editDate2_${idx}`).value;
+        portfolio[idx].gia_von_2 = price2;
+    } else {
+        delete portfolio[idx].ngay_mua_2;
+        delete portfolio[idx].gia_von_2;
+    }
+
+    savePortfolio(portfolio);
+    editingIdx = null;
+    showToast(`Đã cập nhật <b>${portfolio[idx].ma_cp}</b>`, '✅', 'success');
+    renderAll();
+}
+
+function deleteBuy2(idx) {
+    const portfolio = loadPortfolio();
+    const sym = portfolio[idx].ma_cp;
+    delete portfolio[idx].ngay_mua_2;
+    delete portfolio[idx].gia_von_2;
+    savePortfolio(portfolio);
+    editingIdx = null;
+    showToast(`Đã xóa lần mua 2 của <b>${sym}</b>`, '🗑️', 'warning');
+    renderAll();
+}
+
+function confirmSell(idx) {
+    const portfolio = loadPortfolio();
+    const item = portfolio[idx];
+    const sellDate = document.getElementById(`sellDate_${idx}`).value;
+    const sellPrice = parseInt(document.getElementById(`sellPrice_${idx}`).value) || 0;
+
+    if (sellPrice <= 0) {
+        showToast('Vui lòng nhập giá bán hợp lệ', '⚠️', 'error');
+        return;
+    }
+
+    let giaVonAvg = item.gia_von;
+    if (item.gia_von_2) giaVonAvg = (item.gia_von + item.gia_von_2) / 2;
+
+    const profitPct = (sellPrice - giaVonAvg) / giaVonAvg * 100;
+
+    const closedEntry = {
+        ma_cp: item.ma_cp,
+        ngay_mua: item.ngay_mua,
+        gia_von: item.gia_von,
+        ty_trong: item.ty_trong,
+        ngay_ban: sellDate,
+        gia_ban: sellPrice,
+        profit_pct: Math.round(profitPct * 100) / 100,
+        loai: profitPct >= 0 ? 'chot_loi' : 'cat_lo',
+    };
+    if (item.ngay_mua_2) {
+        closedEntry.ngay_mua_2 = item.ngay_mua_2;
+        closedEntry.gia_von_2 = item.gia_von_2;
+    }
+
+    const closed = loadClosed();
+    closed.push(closedEntry);
+    saveClosed(closed);
+
+    portfolio.splice(idx, 1);
+    savePortfolio(portfolio);
+
+    sellingIdx = null;
+    const label = profitPct >= 0 ? 'Chốt lời' : 'Cắt lỗ';
+    showToast(`${label} <b>${item.ma_cp}</b> (${profitPct >= 0 ? '+' : ''}${profitPct.toFixed(2)}%)`, '💰', profitPct >= 0 ? 'success' : 'error');
+    renderAll();
+}
+
+// ============================================================
+// ADD STOCK
+// ============================================================
+function openAddModal() {
+    document.getElementById('addSymbol').value = '';
+    document.getElementById('addDate').value = todayISO();
+    document.getElementById('addPrice').value = '';
+    document.getElementById('addWeight').value = '25';
+    document.getElementById('addBuyTwice').checked = false;
+    document.getElementById('buy2Fields').style.display = 'none';
+    document.getElementById('addDate2').value = todayISO();
+    document.getElementById('addPrice2').value = '';
+    document.getElementById('addModal').classList.add('active');
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+}
+
+function toggleBuy2() {
+    document.getElementById('buy2Fields').style.display =
+        document.getElementById('addBuyTwice').checked ? 'block' : 'none';
+}
+
+function confirmAddStock() {
+    const symbol = document.getElementById('addSymbol').value.toUpperCase().trim();
+    const date = document.getElementById('addDate').value;
+    const price = parseInt(document.getElementById('addPrice').value) || 0;
+    const weight = parseInt(document.getElementById('addWeight').value) || 0;
+
+    if (!symbol || price <= 0) {
+        showToast('Vui lòng nhập mã CP và giá vốn', '⚠️', 'error');
+        return;
+    }
+
+    const entry = { ngay_mua: date, ma_cp: symbol, gia_von: price, ty_trong: weight };
+
+    if (document.getElementById('addBuyTwice').checked) {
+        const price2 = parseInt(document.getElementById('addPrice2').value) || 0;
+        if (price2 > 0) {
+            entry.ngay_mua_2 = document.getElementById('addDate2').value;
+            entry.gia_von_2 = price2;
+        }
+    }
+
+    const portfolio = loadPortfolio();
+    portfolio.push(entry);
+    savePortfolio(portfolio);
+    closeModal('addModal');
+    showToast(`Đã thêm <b>${symbol}</b> vào danh mục`, '✅', 'success');
+    renderAll();
+}
+
+// ============================================================
+// DELETE STOCK
+// ============================================================
+function deleteStock(idx) {
+    const portfolio = loadPortfolio();
+    const sym = portfolio[idx].ma_cp;
+    if (!confirm(`Bạn có chắc muốn xóa ${sym}?`)) return;
+    portfolio.splice(idx, 1);
+    savePortfolio(portfolio);
+    editingIdx = null;
+    sellingIdx = null;
+    showToast(`Đã xóa <b>${sym}</b>`, '🗑️', 'warning');
+    renderAll();
+}
+
+// ============================================================
+// CLOSED POSITIONS
+// ============================================================
+function renderClosedPositions() {
+    const closed = loadClosed();
+    if (closed.length === 0) {
+        document.getElementById('closedSection').innerHTML = '';
+        return;
+    }
+
+    const chotLoi = closed.filter(c => c.loai === 'chot_loi');
+    const catLo = closed.filter(c => c.loai === 'cat_lo');
+    const totalClosed = closed.length;
+    const winRate = totalClosed > 0 ? chotLoi.length / totalClosed * 100 : 0;
+    const avgProfit = chotLoi.length > 0 ? chotLoi.reduce((s, c) => s + c.profit_pct, 0) / chotLoi.length : 0;
+    const avgLoss = catLo.length > 0 ? catLo.reduce((s, c) => s + c.profit_pct, 0) / catLo.length : 0;
+
+    // KPI for closed positions
+    let statsHtml = `
+    <div class="kpi-row">
+        <div class="kpi-card" style="background: linear-gradient(145deg, #2E7D32 0%, #1B5E20 100%); box-shadow: 0 4px 16px rgba(46,125,50,0.25);">
+            <div class="kpi-title-row"><span class="kpi-icon">✅</span><div class="label">Chốt lời</div></div>
+            <div class="value neutral">${chotLoi.length}</div>
+        </div>
+        <div class="kpi-card" style="background: linear-gradient(145deg, #C62828 0%, #B71C1C 100%); box-shadow: 0 4px 16px rgba(198,40,40,0.25);">
+            <div class="kpi-title-row"><span class="kpi-icon">❌</span><div class="label">Cắt lỗ</div></div>
+            <div class="value neutral">${catLo.length}</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title-row"><span class="kpi-icon">🎯</span><div class="label">Win Rate</div></div>
+            <div class="value neutral">${winRate.toFixed(1)}%</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title-row"><span class="kpi-icon">📈</span><div class="label">TB Lãi / Lỗ</div></div>
+            <div class="value neutral" style="font-size:1rem;">${avgProfit >= 0 ? '+' : ''}${avgProfit.toFixed(2)}% / ${avgLoss >= 0 ? '+' : ''}${avgLoss.toFixed(2)}%</div>
+        </div>
+    </div>`;
+
+    // Closed table
+    let closedRows = '';
+    closed.forEach((c, ci) => {
+        const ngayMua = fmtDate(c.ngay_mua);
+        const ngayBan = fmtDate(c.ngay_ban);
+        let giaVon = c.gia_von;
+        if (c.gia_von_2) giaVon = (c.gia_von + c.gia_von_2) / 2;
+        const giaVonFmt = fmtVND(giaVon);
+        const giaBanFmt = fmtVND(c.gia_ban);
+        const p = c.profit_pct;
+        const pCls = p >= 0 ? 'profit-positive' : 'profit-negative';
+        const pIcon = p >= 0 ? '▲' : '▼';
+        const pSign = p >= 0 ? '+' : '';
+        const profitDisplay = `<span class="${pCls}">${pIcon} ${pSign}${p.toFixed(2)}%</span>`;
+        const loaiBadge = c.loai === 'chot_loi'
+            ? '<span style="background:#2E7D32;color:#fff;padding:2px 8px;border-radius:8px;font-size:0.75rem;">Chốt lời</span>'
+            : '<span style="background:#C62828;color:#fff;padding:2px 8px;border-radius:8px;font-size:0.75rem;">Cắt lỗ</span>';
+
+        closedRows += `<tr>
+            <td>${ci + 1}</td>
+            <td class="symbol">${c.ma_cp}</td>
+            <td>${ngayMua}</td>
+            <td>${giaVonFmt}</td>
+            <td>${ngayBan}</td>
+            <td>${giaBanFmt}</td>
+            <td>${profitDisplay}</td>
+            <td>${loaiBadge}</td>
+            <td><button class="btn btn-danger btn-sm" onclick="deleteClosedPosition(${ci})">🗑️</button></td>
+        </tr>`;
+    });
+
+    document.getElementById('closedSection').innerHTML = `
+        <hr class="separator">
+        <div class="section-title">📊 Lịch sử giao dịch đã đóng</div>
+        ${statsHtml}
+        <div class="glass-card">
+            <div class="table-wrapper">
+                <table class="portfolio-table">
+                    <thead><tr>
+                        <th>STT</th><th>Mã CP</th><th>Ngày mua</th><th>Giá vốn</th>
+                        <th>Ngày bán</th><th>Giá bán</th><th>% Lợi nhuận</th><th>Loại</th><th>Xóa</th>
+                    </tr></thead>
+                    <tbody>${closedRows}</tbody>
+                </table>
+            </div>
+        </div>`;
+}
+
+function deleteClosedPosition(ci) {
+    const closed = loadClosed();
+    const sym = closed[ci].ma_cp;
+    if (!confirm(`Xóa giao dịch ${sym}?`)) return;
+    closed.splice(ci, 1);
+    saveClosed(closed);
+    showToast(`Đã xóa giao dịch <b>${sym}</b>`, '🗑️', 'warning');
+    renderAll();
+}
+
+// ============================================================
+// REFRESH PRICES
+// ============================================================
+async function refreshPrices() {
+    const btn = document.getElementById('refreshBtn');
+    btn.innerHTML = '<span class="loading"></span> Đang tải...';
+    btn.disabled = true;
+
+    const ok = await fetchPrices();
+    btn.innerHTML = '🔄 Cập nhật giá';
+    btn.disabled = false;
+
+    if (ok) {
+        showToast(`Đã cập nhật giá (${pricesData.total_symbols || 0} mã)`, '🔄', 'success');
+    } else {
+        showToast('Không tải được giá. Kiểm tra prices.json', '⚠️', 'error');
+    }
+    renderAll();
+}
+
+// ============================================================
+// EXPORT / IMPORT
+// ============================================================
+function exportData() {
+    const data = {
+        portfolio: loadPortfolio(),
+        closed_positions: loadClosed(),
+        exported_at: new Date().toISOString(),
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `portfolio_backup_${todayISO()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Đã export dữ liệu', '📥', 'success');
+}
+
+function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (data.portfolio) savePortfolio(data.portfolio);
+            if (data.closed_positions) saveClosed(data.closed_positions);
+            showToast('Đã import dữ liệu thành công!', '📤', 'success');
+            renderAll();
+        } catch (err) {
+            showToast('File không hợp lệ', '⚠️', 'error');
+        }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
+// ============================================================
+// RENDER ALL
+// ============================================================
+function renderAll() {
+    const portfolio = loadPortfolio();
+    const rows = calcRows(portfolio);
+    renderKPIs(rows, portfolio);
+    renderTable(rows);
+    renderClosedPositions();
+
+    // Timestamp
+    const updatedAt = pricesData.updated_at
+        ? new Date(pricesData.updated_at).toLocaleString('vi-VN')
+        : 'Chưa có dữ liệu giá';
+    document.getElementById('timestampBar').innerHTML =
+        `Giá cập nhật: ${updatedAt} &nbsp;|&nbsp; Trang render lúc ${nowStr()}`;
+}
+
+// ============================================================
+// MODAL: close on overlay click
+// ============================================================
+document.getElementById('addModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('addModal')) closeModal('addModal');
+});
+
+// ============================================================
+// INIT
+// ============================================================
+(async function init() {
+    await fetchPrices();
+    renderAll();
+})();
+</script>
+
+</body>
+</html>
