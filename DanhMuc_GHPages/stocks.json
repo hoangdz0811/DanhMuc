@@ -1,0 +1,8 @@
+{
+    "symbols": [
+        "MWG",
+        "ANV",
+        "BMP"
+    ],
+    "note": "Thêm mã CP vào đây, workflow sẽ chỉ fetch giá cho các mã này"
+}

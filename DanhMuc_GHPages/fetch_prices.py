@@ -1,21 +1,29 @@
 """
 fetch_prices.py — Chạy bởi GitHub Actions
-Lấy giá đóng cửa mới nhất + phân ngành cho tất cả mã CP trên sàn,
+Lấy giá đóng cửa mới nhất + phân ngành cho các mã CP trong stocks.json,
 lưu vào prices.json để trang HTML đọc.
-
-Sử dụng ThreadPoolExecutor để fetch song song, tăng tốc đáng kể.
 """
 
 import json
 import os
 import sys
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import time
 from datetime import datetime, timezone, timedelta
 from vnstock import Listing, Quote
 
 VN_TZ = timezone(timedelta(hours=7))
-OUTPUT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prices.json")
-MAX_WORKERS = 10  # Số luồng song song
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_FILE = os.path.join(SCRIPT_DIR, "prices.json")
+STOCKS_FILE = os.path.join(SCRIPT_DIR, "stocks.json")
+
+
+def load_stock_list():
+    """Đọc danh sách mã CP cần fetch từ stocks.json."""
+    if os.path.exists(STOCKS_FILE):
+        with open(STOCKS_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return data.get("symbols", [])
+    return []
 
 
 def fetch_industry_map():
@@ -38,57 +46,68 @@ def fetch_price(symbol: str) -> tuple[str, float | None]:
         if df is not None and not df.empty:
             raw_price = float(df["close"].iloc[-1])
             return (symbol, raw_price * 1000)  # VCI trả giá theo đơn vị nghìn VND
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"  [ERROR] {symbol}: {e}")
     return (symbol, None)
 
 
 def main():
     print("=== Bắt đầu cập nhật giá ===")
 
+    # Đọc danh sách mã CP cần fetch
+    symbols = load_stock_list()
+    if not symbols:
+        print("[ERROR] Không có mã CP nào trong stocks.json")
+        sys.exit(1)
+
+    print(f"Danh sách mã CP: {', '.join(symbols)}")
+
     # Đọc file prices.json cũ (nếu có) để giữ giá cũ khi fetch thất bại
     old_prices = {}
+    old_industries = {}
     if os.path.exists(OUTPUT_FILE):
         try:
             with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
                 old_data = json.load(f)
                 old_prices = old_data.get("prices", {})
+                old_industries = old_data.get("industries", {})
         except Exception:
             pass
 
     # Lấy phân ngành
     print("Đang lấy phân ngành...")
-    industries = fetch_industry_map()
-    print(f"  → {len(industries)} mã có phân ngành")
+    all_industries = fetch_industry_map()
+    # Chỉ giữ phân ngành cho các mã cần thiết
+    industries = {}
+    for sym in symbols:
+        if sym in all_industries:
+            industries[sym] = all_industries[sym]
+        elif sym in old_industries:
+            industries[sym] = old_industries[sym]
+    print(f"  → {len(industries)}/{len(symbols)} mã có phân ngành")
 
-    # Danh sách mã CP cần fetch giá
-    symbols = list(industries.keys()) if industries else []
-    if not symbols:
-        print("[ERROR] Không có danh sách mã CP")
-        sys.exit(1)
-
-    print(f"Tổng số mã CP: {len(symbols)}")
-    print(f"Đang fetch giá song song ({MAX_WORKERS} luồng)...")
-
-    # Fetch giá song song bằng ThreadPoolExecutor
+    # Fetch giá từng mã (tuần tự, có delay để tránh rate limit)
+    print(f"Đang fetch giá cho {len(symbols)} mã...")
     prices = {}
     success = 0
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        futures = {executor.submit(fetch_price, sym): sym for sym in symbols}
-        done_count = 0
-        for future in as_completed(futures):
-            done_count += 1
-            sym, price = future.result()
-            if price is not None:
-                prices[sym] = price
-                success += 1
-            elif sym in old_prices:
-                prices[sym] = old_prices[sym]
+    for i, sym in enumerate(symbols):
+        print(f"  [{i+1}/{len(symbols)}] {sym}...", end=" ")
+        sym_result, price = fetch_price(sym)
+        if price is not None:
+            prices[sym] = price
+            success += 1
+            print(f"✓ {price:,.0f} VND")
+        elif sym in old_prices:
+            prices[sym] = old_prices[sym]
+            print(f"✗ (giữ giá cũ: {old_prices[sym]:,.0f} VND)")
+        else:
+            print("✗ (không có giá)")
 
-            if done_count % 100 == 0:
-                print(f"  Đã xử lý {done_count}/{len(symbols)}...")
+        # Delay giữa các request để tránh rate limit
+        if i < len(symbols) - 1:
+            time.sleep(1)
 
-    print(f"  → Lấy giá thành công: {success}/{len(symbols)}")
+    print(f"\n  → Lấy giá thành công: {success}/{len(symbols)}")
 
     # Tạo output
     output = {
