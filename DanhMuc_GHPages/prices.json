@@ -1,15 +1,17 @@
 {
-  "updated_at": "2026-02-26T19:37:05+07:00",
-  "total_symbols": 4,
+  "updated_at": "2026-02-26T20:02:53+07:00",
+  "total_symbols": 5,
   "prices": {
     "DBC": 26850.0,
     "DPG": 47800.0,
+    "FPT": 90500.0,
     "HPG": 29400.0,
     "MBB": 28800.0
   },
   "industries": {
     "DBC": "Thực phẩm - Đồ uống",
     "DPG": "Xây dựng",
+    "FPT": "Công nghệ và thông tin",
     "HPG": "Vật liệu xây dựng",
     "MBB": "Ngân hàng"
   }
