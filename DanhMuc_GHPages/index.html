@@ -365,6 +365,93 @@
             flex-wrap: wrap;
         }
 
+        /* ===== STOCK MANAGEMENT SECTION ===== */
+        .mgmt-section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #37474F;
+            margin: 28px 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stock-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stock-card {
+            background: white;
+            border: 1px solid #e8f5e9;
+            border-radius: 14px;
+            padding: 16px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .stock-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 137, 123, 0.12);
+            border-color: #b2dfdb;
+        }
+
+        .stock-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .stock-card-symbol {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #00897B;
+            letter-spacing: 0.5px;
+        }
+
+        .stock-card-profit {
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .stock-card-profit.positive {
+            background: #e8f5e9;
+            color: #2E7D32;
+        }
+
+        .stock-card-profit.negative {
+            background: #ffebee;
+            color: #D32F2F;
+        }
+
+        .stock-card-profit.na {
+            background: #f5f5f5;
+            color: #9e9e9e;
+        }
+
+        .stock-card-details {
+            font-size: 0.8rem;
+            color: #90A4AE;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .stock-card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .stock-card-actions .btn {
+            flex: 1;
+            text-align: center;
+            font-size: 0.8rem;
+            padding: 7px 0;
+        }
+
         /* ===== STOCK INFO ROW ===== */
         .stock-info-row {
             display: flex;
@@ -995,13 +1082,6 @@
             <td>${profitDisplay}</td>
             <td>${r.ty_trong}%</td>
             <td>${r.nganh}</td>
-            <td>
-                <div class="action-cell">
-                    <button class="btn btn-secondary btn-sm" onclick="showEditForm(${r.stt - 1})">✏️</button>
-                    <button class="btn btn-warning btn-sm" onclick="showSellForm(${r.stt - 1})">💰</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteStock(${r.stt - 1})">🗑️</button>
-                </div>
-            </td>
         </tr>`;
             }
 
@@ -1012,7 +1092,7 @@
                     <thead><tr>
                         <th>STT</th><th>Ngày mua</th><th>Mã CP</th>
                         <th>Giá vốn</th><th>Giá thị trường</th><th>% Lợi nhuận</th>
-                        <th>Tỷ trọng</th><th>Ngành</th><th>Thao tác</th>
+                        <th>Tỷ trọng</th><th>Ngành</th>
                     </tr></thead>
                     <tbody>${tbody}</tbody>
                 </table>
@@ -1024,79 +1104,121 @@
         }
 
         // ============================================================
-        // INLINE EDIT / SELL FORMS
+        // STOCK MANAGEMENT SECTION (INLINE EDIT / SELL FORMS)
         // ============================================================
         function renderInlineForms() {
             const portfolio = loadPortfolio();
-            let html = '';
-
-            for (let i = 0; i < portfolio.length; i++) {
-                const item = portfolio[i];
-
-                // Edit form
-                if (editingIdx === i) {
-                    const hasBuy2 = !!item.ngay_mua_2;
-                    html += `
-            <div class="inline-form">
-                <div class="form-title" style="color:#00897B;">Chỉnh sửa ${item.ma_cp}</div>
-                <div style="font-weight:600; font-size:0.85rem; margin-bottom:8px;">Lần mua 1</div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Ngày mua 1</label>
-                        <input type="date" id="editDate_${i}" value="${item.ngay_mua}">
-                    </div>
-                    <div class="form-group">
-                        <label>Giá vốn 1 (₫)</label>
-                        <input type="number" id="editPrice_${i}" min="0" step="100" value="${item.gia_von}">
-                    </div>
-                    <div class="form-group">
-                        <label>Tỷ trọng (%)</label>
-                        <input type="number" id="editWeight_${i}" min="0" max="100" step="5" value="${item.ty_trong}">
-                    </div>
-                </div>
-                <div style="font-weight:600; font-size:0.85rem; margin:8px 0;">Lần mua 2 <span style="font-weight:400; color:#90A4AE;">(tuỳ chọn)</span></div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Ngày mua 2</label>
-                        <input type="date" id="editDate2_${i}" value="${item.ngay_mua_2 || todayISO()}">
-                    </div>
-                    <div class="form-group">
-                        <label>Giá vốn 2 (₫)</label>
-                        <input type="number" id="editPrice2_${i}" min="0" step="100" value="${item.gia_von_2 || 0}">
-                    </div>
-                </div>
-                <div class="form-actions">
-                    <button class="btn btn-primary btn-sm" onclick="saveEdit(${i})">💾 Lưu</button>
-                    <button class="btn btn-secondary btn-sm" onclick="cancelEditSell()">↩️ Hủy</button>
-                    ${hasBuy2 ? `<button class="btn btn-danger btn-sm" onclick="deleteBuy2(${i})">🗑️ Xóa lần mua 2</button>` : ''}
-                </div>
-            </div>`;
-                }
-
-                // Sell form
-                if (sellingIdx === i) {
-                    html += `
-            <div class="inline-form">
-                <div class="form-title" style="color:#FF6F00;">💰 Bán ${item.ma_cp}</div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Ngày bán</label>
-                        <input type="date" id="sellDate_${i}" value="${todayISO()}">
-                    </div>
-                    <div class="form-group">
-                        <label>Giá bán (₫)</label>
-                        <input type="number" id="sellPrice_${i}" min="0" step="100" value="0">
-                    </div>
-                </div>
-                <div class="form-actions">
-                    <button class="btn btn-warning btn-sm" onclick="confirmSell(${i})">✅ Xác nhận bán</button>
-                    <button class="btn btn-secondary btn-sm" onclick="cancelEditSell()">↩️ Hủy</button>
-                </div>
-            </div>`;
-                }
+            if (portfolio.length === 0) {
+                document.getElementById('stockActions').innerHTML = '';
+                return;
             }
 
-            document.getElementById('stockActions').innerHTML = html;
+            let cardsHtml = '';
+            for (let i = 0; i < portfolio.length; i++) {
+                const item = portfolio[i];
+                const marketPrice = getMarketPrice(item.ma_cp);
+                let giaVonAvg = item.gia_von;
+                if (item.gia_von_2) giaVonAvg = (item.gia_von + item.gia_von_2) / 2;
+                let profitPct = null;
+                if (marketPrice !== null) profitPct = (marketPrice - giaVonAvg) / giaVonAvg * 100;
+
+                let profitBadge;
+                if (profitPct !== null) {
+                    const cls = profitPct >= 0 ? 'positive' : 'negative';
+                    const sign = profitPct >= 0 ? '+' : '';
+                    profitBadge = `<span class="stock-card-profit ${cls}">${sign}${profitPct.toFixed(2)}%</span>`;
+                } else {
+                    profitBadge = `<span class="stock-card-profit na">N/A</span>`;
+                }
+
+                let detailLine = `Giá vốn: ${fmtVND(giaVonAvg)}₫`;
+                if (marketPrice !== null) detailLine += ` · Giá TT: ${fmtVND(marketPrice)}₫`;
+                detailLine += ` · TT: ${item.ty_trong}%`;
+                const industry = getIndustry(item.ma_cp);
+                if (industry !== '—') detailLine += ` · ${industry}`;
+
+                cardsHtml += `
+            <div class="stock-card">
+                <div class="stock-card-header">
+                    <span class="stock-card-symbol">${item.ma_cp}</span>
+                    ${profitBadge}
+                </div>
+                <div class="stock-card-details">${detailLine}</div>
+                <div class="stock-card-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="showEditForm(${i})">✏️ Sửa</button>
+                    <button class="btn btn-warning btn-sm" onclick="showSellForm(${i})">💰 Bán</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteStock(${i})">🗑️ Xóa</button>
+                </div>`;
+
+                // Inline Edit form
+                if (editingIdx === i) {
+                    const hasBuy2 = !!item.ngay_mua_2;
+                    cardsHtml += `
+                <div class="inline-form" style="margin-top:12px;">
+                    <div class="form-title" style="color:#00897B;">Chỉnh sửa ${item.ma_cp}</div>
+                    <div style="font-weight:600; font-size:0.85rem; margin-bottom:8px;">Lần mua 1</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Ngày mua 1</label>
+                            <input type="date" id="editDate_${i}" value="${item.ngay_mua}">
+                        </div>
+                        <div class="form-group">
+                            <label>Giá vốn 1 (₫)</label>
+                            <input type="number" id="editPrice_${i}" min="0" step="100" value="${item.gia_von}">
+                        </div>
+                        <div class="form-group">
+                            <label>Tỷ trọng (%)</label>
+                            <input type="number" id="editWeight_${i}" min="0" max="100" step="5" value="${item.ty_trong}">
+                        </div>
+                    </div>
+                    <div style="font-weight:600; font-size:0.85rem; margin:8px 0;">Lần mua 2 <span style="font-weight:400; color:#90A4AE;">(tuỳ chọn)</span></div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Ngày mua 2</label>
+                            <input type="date" id="editDate2_${i}" value="${item.ngay_mua_2 || todayISO()}">
+                        </div>
+                        <div class="form-group">
+                            <label>Giá vốn 2 (₫)</label>
+                            <input type="number" id="editPrice2_${i}" min="0" step="100" value="${item.gia_von_2 || 0}">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-primary btn-sm" onclick="saveEdit(${i})">💾 Lưu</button>
+                        <button class="btn btn-secondary btn-sm" onclick="cancelEditSell()">↩️ Hủy</button>
+                        ${hasBuy2 ? `<button class="btn btn-danger btn-sm" onclick="deleteBuy2(${i})">🗑️ Xóa lần mua 2</button>` : ''}
+                    </div>
+                </div>`;
+                }
+
+                // Inline Sell form
+                if (sellingIdx === i) {
+                    cardsHtml += `
+                <div class="inline-form" style="margin-top:12px;">
+                    <div class="form-title" style="color:#FF6F00;">💰 Bán ${item.ma_cp}</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Ngày bán</label>
+                            <input type="date" id="sellDate_${i}" value="${todayISO()}">
+                        </div>
+                        <div class="form-group">
+                            <label>Giá bán (₫)</label>
+                            <input type="number" id="sellPrice_${i}" min="0" step="100" value="0">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-warning btn-sm" onclick="confirmSell(${i})">✅ Xác nhận bán</button>
+                        <button class="btn btn-secondary btn-sm" onclick="cancelEditSell()">↩️ Hủy</button>
+                    </div>
+                </div>`;
+                }
+
+                cardsHtml += `</div>`; // close stock-card
+            }
+
+            document.getElementById('stockActions').innerHTML = `
+                <div class="mgmt-section-title">🛠️ Quản lý danh mục</div>
+                <div class="stock-cards-grid">${cardsHtml}</div>
+            `;
         }
 
         function showEditForm(idx) {
@@ -1547,7 +1669,7 @@
 
                 if (putResp.ok) {
                     showToast(`Đã đồng bộ ${symbols.length} mã lên GitHub`, '🔄', 'success');
-                    
+
                     // Trigger workflow ngay lập tức
                     try {
                         await fetch(`https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/update-prices.yml/dispatches`, {
@@ -1560,7 +1682,7 @@
                             body: JSON.stringify({ ref: 'main' })
                         });
                         console.log('Đã trigger workflow update-prices');
-                    } catch(err) {
+                    } catch (err) {
                         console.warn('Lỗi trigger workflow:', err);
                     }
                 } else {
