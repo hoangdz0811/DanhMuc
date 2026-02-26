@@ -1,14 +1,16 @@
 {
-  "updated_at": "2026-02-26T20:43:56+07:00",
-  "total_symbols": 3,
+  "updated_at": "2026-02-26T21:00:31+07:00",
+  "total_symbols": 4,
   "prices": {
     "DBC": 26850.0,
     "HPG": 29400.0,
-    "MBB": 28800.0
+    "MBB": 28800.0,
+    "TCB": 36450.0
   },
   "industries": {
     "DBC": "Thực phẩm - Đồ uống",
     "HPG": "Vật liệu xây dựng",
-    "MBB": "Ngân hàng"
+    "MBB": "Ngân hàng",
+    "TCB": "Ngân hàng"
   }
 }
