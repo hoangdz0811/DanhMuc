@@ -1547,6 +1547,22 @@
 
                 if (putResp.ok) {
                     showToast(`Đã đồng bộ ${symbols.length} mã lên GitHub`, '🔄', 'success');
+                    
+                    // Trigger workflow ngay lập tức
+                    try {
+                        await fetch(`https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/update-prices.yml/dispatches`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${pat}`,
+                                'Accept': 'application/vnd.github.v3+json',
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ ref: 'main' })
+                        });
+                        console.log('Đã trigger workflow update-prices');
+                    } catch(err) {
+                        console.warn('Lỗi trigger workflow:', err);
+                    }
                 } else {
                     const err = await putResp.json();
                     console.warn('Sync failed:', err);
