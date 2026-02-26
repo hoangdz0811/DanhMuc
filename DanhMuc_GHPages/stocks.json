@@ -1,8 +1,8 @@
 {
     "symbols": [
-        "MWG",
-        "ANV",
-        "BMP"
+        "MBB",
+        "HPG",
+        "DBC"
     ],
     "note": "Thêm mã CP vào đây, workflow sẽ chỉ fetch giá cho các mã này"
 }
