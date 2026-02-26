@@ -1,14 +1,14 @@
 {
-  "updated_at": "2026-02-26T16:17:30+07:00",
+  "updated_at": "2026-02-26T16:27:53+07:00",
   "total_symbols": 3,
   "prices": {
-    "MWG": 93600.0,
-    "ANV": 27750.0,
-    "BMP": 161000.0
+    "MBB": 28800.0,
+    "HPG": 29400.0,
+    "DBC": 26850.0
   },
   "industries": {
-    "MWG": "Bán lẻ",
-    "ANV": "Chế biến Thủy sản",
-    "BMP": "SX Nhựa - Hóa chất"
+    "MBB": "Ngân hàng",
+    "HPG": "Vật liệu xây dựng",
+    "DBC": "Thực phẩm - Đồ uống"
   }
 }
