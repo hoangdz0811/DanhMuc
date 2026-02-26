@@ -1,8 +1,8 @@
 {
-    "symbols": [
-        "MBB",
-        "HPG",
-        "DBC"
-    ],
-    "note": "Thêm mã CP vào đây, workflow sẽ chỉ fetch giá cho các mã này"
+  "symbols": [
+    "DBC",
+    "HPG",
+    "MBB"
+  ],
+  "note": "Tự động cập nhật từ trang web"
 }
