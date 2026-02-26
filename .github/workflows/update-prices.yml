@@ -12,6 +12,9 @@ permissions:
 jobs:
   update-prices:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: DanhMuc_GHPages
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -22,10 +25,13 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install vnstock
+        run: |
+          pip install vnstock
+          pip show vnstock
+        working-directory: .
 
       - name: Fetch latest prices
-        run: python DanhMuc_GHPages/fetch_prices.py
+        run: python fetch_prices.py
 
       - name: Commit and push
         run: |
@@ -34,3 +40,4 @@ jobs:
           git add DanhMuc_GHPages/prices.json
           git diff --staged --quiet || git commit -m "📈 Update prices $(date -u '+%Y-%m-%d %H:%M UTC')"
           git push
+        working-directory: .
