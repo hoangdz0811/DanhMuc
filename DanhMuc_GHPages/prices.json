@@ -1,16 +1,19 @@
 {
-  "updated_at": "2026-02-27T12:35:09+07:00",
-  "total_symbols": 4,
+  "updated_at": "2026-02-27T13:14:18+07:00",
+  "total_symbols": 6,
   "prices": {
-    "DBC": 26750.0,
-    "HPG": 29000.0,
-    "IDC": 48900.0,
-    "MBB": 28750.0
+    "AAA": 7980.0,
+    "ANV": 27150.0,
+    "BAF": 37550.0,
+    "EVF": 13650.0,
+    "TNG": 24200.0,
+    "YEG": 12600.0
   },
   "industries": {
-    "DBC": "Thực phẩm - Đồ uống",
-    "HPG": "Vật liệu xây dựng",
-    "IDC": "Tiện ích",
-    "MBB": "Ngân hàng"
+    "AAA": "SX Nhựa - Hóa chất",
+    "ANV": "Chế biến Thủy sản",
+    "BAF": "Thực phẩm - Đồ uống",
+    "EVF": "Ngân hàng",
+    "TNG": "SX Hàng gia dụng"
   }
 }
