@@ -1,18 +1,14 @@
 {
-  "updated_at": "2026-02-27T08:38:29+07:00",
-  "total_symbols": 5,
+  "updated_at": "2026-02-27T08:43:47+07:00",
+  "total_symbols": 3,
   "prices": {
     "DBC": 26850.0,
-    "EVF": 13800.0,
     "HPG": 29400.0,
-    "MBB": 28800.0,
-    "MSN": 80400.0
+    "MBB": 28800.0
   },
   "industries": {
     "DBC": "Thực phẩm - Đồ uống",
-    "EVF": "Ngân hàng",
     "HPG": "Vật liệu xây dựng",
-    "MBB": "Ngân hàng",
-    "MSN": "Thực phẩm - Đồ uống"
+    "MBB": "Ngân hàng"
   }
 }
