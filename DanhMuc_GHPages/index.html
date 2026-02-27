@@ -620,6 +620,10 @@
             border-left-color: #E65100;
         }
 
+        .toast.info {
+            border-left-color: #1565C0;
+        }
+
         /* ===== TIMESTAMP ===== */
         .timestamp {
             text-align: center;
@@ -863,12 +867,18 @@
         // ============================================================
         // CONFIG
         // ============================================================
-        const PRICES_URL = 'prices.json';  // relative — same repo on GitHub Pages
+        const GITHUB_REPO = 'hoangdz0811/DanhMuc';
+        const PRICES_JSON_PATH = 'DanhMuc_GHPages/prices.json';
+        const STOCKS_JSON_PATH = 'DanhMuc_GHPages/stocks.json';
+        // Đọc từ raw.githubusercontent.com để bypass CDN cache của GitHub Pages
+        const PRICES_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${PRICES_JSON_PATH}`;
         const LS_PORTFOLIO = 'kafi_portfolio';
         const LS_CLOSED = 'kafi_closed_positions';
         const LS_GITHUB_PAT = 'kafi_github_pat';
-        const GITHUB_REPO = 'hoangdz0811/DanhMuc';
-        const STOCKS_JSON_PATH = 'DanhMuc_GHPages/stocks.json';
+
+        // Auto-poll config
+        const POLL_INTERVAL_MS = 30000;  // Kiểm tra mỗi 30 giây
+        const POLL_MAX_ATTEMPTS = 10;    // Tối đa 10 lần (5 phút)
 
         const DEFAULT_PORTFOLIO = [
             { ngay_mua: "2026-02-03", ma_cp: "MWG", gia_von: 76000, ty_trong: 25 },
@@ -882,6 +892,8 @@
         let pricesData = { prices: {}, industries: {}, updated_at: '' };
         let editingIdx = null;
         let sellingIdx = null;
+        let pollTimerId = null;
+        let pollAttempts = 0;
 
         // ============================================================
         // DATA PERSISTENCE (localStorage)
@@ -1671,8 +1683,9 @@
                     showToast(`Đã đồng bộ ${symbols.length} mã lên GitHub`, '🔄', 'success');
 
                     // Trigger workflow ngay lập tức
+                    let workflowTriggered = false;
                     try {
-                        await fetch(`https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/update-prices.yml/dispatches`, {
+                        const wfResp = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/update-prices.yml/dispatches`, {
                             method: 'POST',
                             headers: {
                                 'Authorization': `Bearer ${pat}`,
@@ -1681,9 +1694,15 @@
                             },
                             body: JSON.stringify({ ref: 'main' })
                         });
+                        workflowTriggered = wfResp.ok || wfResp.status === 204;
                         console.log('Đã trigger workflow update-prices');
                     } catch (err) {
                         console.warn('Lỗi trigger workflow:', err);
+                    }
+
+                    // Bắt đầu auto-poll nếu workflow đã trigger
+                    if (workflowTriggered) {
+                        startPricePolling(symbols);
                     }
                 } else {
                     const err = await putResp.json();
@@ -1693,6 +1712,72 @@
             } catch (e) {
                 console.warn('Sync error:', e);
             }
+        }
+
+        // ============================================================
+        // AUTO-POLL: Tự kiểm tra prices.json đến khi có mã mới
+        // ============================================================
+        function startPricePolling(expectedSymbols) {
+            stopPricePolling(); // Dừng poll cũ nếu có
+            pollAttempts = 0;
+            const oldTimestamp = pricesData.updated_at || '';
+
+            showToast(
+                `⏳ Đang chờ GitHub cập nhật giá cho ${expectedSymbols.length} mã... (tự kiểm tra mỗi 30s)`,
+                '⏳', 'info'
+            );
+
+            // Cập nhật thanh timestamp
+            document.getElementById('timestampBar').innerHTML =
+                `⏳ Đang chờ GitHub Actions cập nhật giá... (lần kiểm tra: 0/${POLL_MAX_ATTEMPTS})`;
+
+            pollTimerId = setInterval(async () => {
+                pollAttempts++;
+                console.log(`[Poll ${pollAttempts}/${POLL_MAX_ATTEMPTS}] Kiểm tra prices.json...`);
+
+                document.getElementById('timestampBar').innerHTML =
+                    `⏳ Đang kiểm tra giá mới... (lần ${pollAttempts}/${POLL_MAX_ATTEMPTS})`;
+
+                const ok = await fetchPrices();
+                if (ok) {
+                    // Kiểm tra xem prices đã cập nhật chưa (timestamp mới hơn)
+                    const newTimestamp = pricesData.updated_at || '';
+                    const allSymbolsHavePrice = expectedSymbols.every(
+                        sym => pricesData.prices[sym] !== undefined
+                    );
+
+                    if (newTimestamp !== oldTimestamp && allSymbolsHavePrice) {
+                        // Đã cập nhật xong!
+                        stopPricePolling();
+                        renderAll();
+                        showToast(
+                            `✅ Đã tự động cập nhật giá cho ${expectedSymbols.length} mã!`,
+                            '✅', 'success'
+                        );
+                        return;
+                    } else if (newTimestamp !== oldTimestamp) {
+                        // Timestamp mới nhưng chưa đủ mã — vẫn render
+                        renderAll();
+                    }
+                }
+
+                if (pollAttempts >= POLL_MAX_ATTEMPTS) {
+                    stopPricePolling();
+                    renderAll();
+                    showToast(
+                        '⚠️ Hết thời gian chờ. Bấm "Cập nhật giá" để thử lại.',
+                        '⚠️', 'warning'
+                    );
+                }
+            }, POLL_INTERVAL_MS);
+        }
+
+        function stopPricePolling() {
+            if (pollTimerId) {
+                clearInterval(pollTimerId);
+                pollTimerId = null;
+            }
+            pollAttempts = 0;
         }
 
         // ============================================================
