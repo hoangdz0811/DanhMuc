@@ -10,20 +10,44 @@ import sys
 import time
 from datetime import datetime, timezone, timedelta
 from vnstock import Listing, Quote
+from supabase import create_client, Client
 
 VN_TZ = timezone(timedelta(hours=7))
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_FILE = os.path.join(SCRIPT_DIR, "prices.json")
-STOCKS_FILE = os.path.join(SCRIPT_DIR, "stocks.json")
 
+# Supabase config
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_ANON_KEY")
 
 def load_stock_list():
-    """Đọc danh sách mã CP cần fetch từ stocks.json."""
-    if os.path.exists(STOCKS_FILE):
-        with open(STOCKS_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            return data.get("symbols", [])
-    return []
+    """Lấy danh sách các mã cổ phiếu ĐANG CÓ trong bảng portfolios trên Supabase."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        print("[WARN] Chưa cấu hình URL/KEY Supabase trong Github Secrets. Fallback về file stocks.json cũ.")
+        # Fallback cũ
+        stocks_file = os.path.join(SCRIPT_DIR, "stocks.json")
+        if os.path.exists(stocks_file):
+            with open(stocks_file, "r", encoding="utf-8") as f:
+                return json.load(f).get("symbols", [])
+        return []
+
+    try:
+        supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        # Select distict mã cổ phiếu từ profiles
+        response = supabase.table("portfolios").select("ma_cp").execute()
+        
+        # Trích xuất danh sách duy nhất không trùng lặp
+        symbols_set = set()
+        for row in response.data:
+            if row.get("ma_cp"):
+                symbols_set.add(row["ma_cp"].upper())
+                
+        # Trả về list
+        return list(symbols_set)
+    except Exception as e:
+        print(f"[ERROR] Không thể lấy danh sách mã từ Supabase: {e}")
+        return []
+
 
 
 def fetch_industry_map():
